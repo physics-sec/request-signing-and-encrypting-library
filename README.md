@@ -1,5 +1,5 @@
 
-# request-signing-implementation
+# request-signing-and-encrypting-library
 
 This project presents a very simple webpage that implements a simple signing protocol.  
 
