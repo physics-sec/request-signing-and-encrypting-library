@@ -118,7 +118,7 @@ This is mostly a learning experience, but this type of protections *should* be e
 A real implementation of this library, should take into account that each session will have two values associated with the cookie(s), the shared key, and the next request id.  
 
 The next request id should change in every request (obviously), and the shared key should ideally change over time.  
-This can be done by additional Diffie Hellman key exchanges, or by a key derivation function.  
+This is currently done by passing the key through SHA256 every time is used and by performing additional Diffie Hellman key exchanges at random intervals.  
 
 After a DH keypair is used to get a shared secret, it should be discarded and forgotten (to provide forward secrecy).
 
@@ -140,6 +140,7 @@ Several projects where used to obtain some of the core logic (some have been mod
 
 
 ## Ideas for the future
+- Encrypt (and sign?) responses from the server.
 - Add backend implemented in PHP, Node and/or Java.
 - Sign responses from the backend server.
 
