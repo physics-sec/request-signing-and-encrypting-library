@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+</head>
+
+<script src="static/js/crypto.js"></script>
+<script src="static/js/web-request-signing.js"></script>
+<script src="static/js/axlsign.js"></script>
+<script src="static/js/ecdh.js"></script>
+
+<h2>Hi! what is your name?</h2>
+
+<form>
+    <label for="fname">name:</label><br>
+    <input type="text" id="fname" name="fname" value=""><br>
+    <input type="submit" value="Submit">
+</form> 
+<br>
+<div id="resp"></div>
+
+<script type="text/javascript">
+
+    var form = document.querySelector("form");
+    form.onsubmit = async function (event) {
+        event.preventDefault();
+        var name = document.getElementById("fname");
+
+        var request = {
+            method: 'POST',
+            url: '/hello',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Test': 'headerTest123'
+            },
+            data: '{"name": "' + name.value + '"}'
+        };
+        // Sign the request
+        var request = await signer.sign(request);
+
+
+        fetch(request.url, {
+          method: request.method,
+          headers: request.headers,
+          body: request.data,
+        })
+        .then((response) => response.json())
+        .then(async (data) => {
+            // update the signer the new request id
+            await window.signer.update( data['requestId'] );
+            if (window.verbose_log) {
+                console.log('next request id: ' + window.requestId);
+            }
+            var div = document.getElementById("resp");
+            div.innerText = data['msg'];
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+</script>
+
+
+</html>
