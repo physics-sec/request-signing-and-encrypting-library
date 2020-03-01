@@ -63,6 +63,9 @@
         if (typeof request.headers !== "undefined") {
             request.headers = {};
         }
+        if (request.method === 'POST' && typeof request.data === "undefined") {
+            request.data = '';
+        }
         if (typeof request.data !== "undefined") {
             var ct_iv = await encrypt(this, request.data);
             request.data = ct_iv[0];

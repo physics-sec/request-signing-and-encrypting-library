@@ -90,8 +90,10 @@ async function ecdh_handshake(){
     // Re-do the handshake at random invervals (between 3 and 10 minutes)
     var min = 3;
     var max = 10;
+    min *= 60000;
+    max *= 60000;
     var rand = Math.floor(Math.random() * (max - min + 1) + min); //Generate Random number between 3 - 10
-    setTimeout(ecdh_handshake, rand * 1000);
+    setTimeout(ecdh_handshake, rand);
 }
 
 ecdh_handshake();
