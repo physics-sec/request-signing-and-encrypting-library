@@ -112,7 +112,7 @@ The library you choose should encode their keys acoding to the [X25519 RFC](http
 Several projects where used to obtain some of the core logic (some have been modified):
 
 ### AWS v4
-- https://github.com/danieljoos/aws-sign-web  
+- https://github.com/danieljoos/aws-sign-web  (JavaScript)
 - https://github.com/DavidMuller/aws-requests-auth (Python)
 
 ### ECDH with curve25519
@@ -124,5 +124,4 @@ Several projects where used to obtain some of the core logic (some have been mod
 ## Ideas for the future
 - Add backend implemented in PHP, Node and/or Java.
 - Sign responses from the backend server.
-- Add (authenticated) encryption in a separate branch
 
