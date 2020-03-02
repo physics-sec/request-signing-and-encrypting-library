@@ -1,15 +1,10 @@
+#!/usr/bin/env python3
+
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 import hmac
 import hashlib
 import re
-
-try:
-    # python 2
-    from urllib import quote
-    from urlparse import urlparse
-except ImportError:
-    # python 3
-    from urllib.parse import quote, urlparse
+from urllib.parse import quote, urlparse
 
 class reqSignWeb():
     """
@@ -76,16 +71,7 @@ class reqSignWeb():
         if body == '':
             body = None
         body = body if body else bytes()
-        try:
-            body = body.encode('utf-8')
-        except (AttributeError, UnicodeDecodeError):
-            # On py2, if unicode characters in present in `body`,
-            # encode() throws UnicodeDecodeError, but we can safely
-            # pass unencoded `body` to execute hexdigest().
-            #
-            # For py3, encode() will execute successfully regardless
-            # of the presence of unicode data
-            body = body
+        body = body.encode('utf-8')
 
         payload_hash = hashlib.sha256(body).hexdigest()
 
@@ -101,12 +87,7 @@ class reqSignWeb():
 
         string_to_sign = (algorithm + '\n' + hashlib.sha256(canonical_request.encode('utf-8')).hexdigest())
 
-        try:
-            # py3
-            signing_key = bytes.fromhex(self.signKey)
-        except AttributeError:
-            # py2
-            signing_key = self.signKey.decode("hex")
+        signing_key = bytes.fromhex(self.signKey)
 
         # Sign the string_to_sign using the signing_key
         string_to_sign_utf8 = string_to_sign.encode('utf-8')
