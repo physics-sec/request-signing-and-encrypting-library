@@ -59,7 +59,6 @@ User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0
 Accept: application/json
 Accept-Language: en,de-DE;q=0.8,en-US;q=0.5,es;q=0.3
 Accept-Encoding: gzip, deflate
-Referer: http://0.0.0.0:5000/
 X-IV: 3b7b4f06187ee710dd98e379aaa800e028196dcdf0d3fc328ba703274469952b
 X-Payload-Encrypted: 1
 Content-Type: text/plain
