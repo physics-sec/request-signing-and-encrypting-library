@@ -120,7 +120,6 @@ This is a small contribution into making this protections easier to implement.
 ## Considerations
 A real implementation of this library, should take into account that each session will have two values associated with the cookie(s): the shared key and the next request id.  
 
-This 
 The next request id should change in every request (obviously), and the shared key should ideally change over time.  
 This is currently done by passing the key through SHA256 every time is used and by performing additional Diffie Hellman key exchanges at random intervals.  
 
@@ -229,6 +228,7 @@ Several projects where used to obtain some of the core logic (some have been mod
 
 
 ## Ideas for the future
-- Encrypt (and sign?) responses from the server.
-- Add backend implemented in PHP, Node and/or Java.
 - Replace the JavaSCript ECDH logic with a well supported library.
+- Encrypt (and sign?) responses from the server.
+- Use different keys for signing and encrypting.
+- Add backend implemented in PHP, Node and/or Java.
