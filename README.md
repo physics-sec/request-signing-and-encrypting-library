@@ -4,7 +4,7 @@
 This project presents a very simple webpage that signs and encrypts the requests sent from the client to the server.  
 
 It uses **Elliptic-curve Diffie-Hellman** (with curve25519) to generate a shared secret and then signs all the requests with a modified version of the **AWS v4 signature scheme**.  
-If the request is a POST and has a payload, then it is encripted it with **AES-GCM**.
+If the request is a POST, then it encrypts the payload with **AES-GCM**.
 
 The main idea is to present an easy-to-implement way of signing and encrypting requests.  
 
