@@ -18,7 +18,7 @@ The "verifier" object should be unique to each user's session.
 """
 
 verifier = None
-verbose_log = True;
+verbose_log = True
 
 @app.route('/')
 def home():
@@ -95,11 +95,15 @@ def handshake():
 @app.route('/hello', methods=['POST'])
 def hello():
 
+	# check that the handshake was performed
+	if verifier == None:
+		return 'Handshake needed'
+
 	# verify that the request is valid
 	if verifier.verify(request) is False:
 		return "Invalid request."
 
-	# decrypt the payload
+	# decrypt the payload (don't forget to verify the request first!)
 	payload = verifier.getPayload(request)
 	js = json.loads(payload, strict=False)
 	reflect = js['name']

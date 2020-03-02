@@ -40,10 +40,10 @@ class reqSignWeb():
         # get the key bytes from the signKey
         key = bytes.fromhex(self.signKey)
 
-        # create the AES-GCM object
+        # create the AES-GCM object from the key
         aesgcm = AESGCM(key)
 
-        # get the IV bytes from the header
+        # get the initialization vector bytes from the header
         iv = bytes.fromhex(r.headers.get('X-IV'))
 
         # decrypt the ciphertext with the AES-GCM object and the IV
@@ -52,6 +52,52 @@ class reqSignWeb():
         # return the platintext
         return plaintext.decode('utf-8')
 
+    def get_canonical_path(self, r):
+        """
+        Create canonical URI--the part of the URI from domain to query
+        string (use '/' if no path)
+        """
+
+        url = r.path
+        parsedurl = urlparse(url)
+
+        # safe chars adapted from boto's use of urllib.parse.quote
+        # https://github.com/boto/boto/blob/d9e5cfe900e1a58717e393c76a6e3580305f217a/boto/auth.py#L393
+        return quote(parsedurl.path if parsedurl.path else '/', safe='/-_.~')
+
+    def get_canonical_querystring(self, r):
+        """
+        Create the canonical query string. According to AWS, by the
+        end of this function our query string values must
+        be URL-encoded (space=%20) and the parameters must be sorted
+        by name.
+
+        This method assumes that the query params in `r` are *already*
+        url encoded.  If they are not url encoded by the time they make
+        it to this function, AWS may complain that the signature for your
+        request is incorrect.
+        """
+        canonical_querystring = ''
+
+        url = r.query_string.decode('utf-8')
+        parsedurl = urlparse(url)
+        querystring_sorted = '&'.join(sorted(parsedurl.query.split('&')))
+
+        for query_param in querystring_sorted.split('&'):
+            key_val_split = query_param.split('=', 1)
+
+            key = key_val_split[0]
+            if len(key_val_split) > 1:
+                val = key_val_split[1]
+            else:
+                val = ''
+
+            if key:
+                if canonical_querystring:
+                    canonical_querystring += "&"
+                canonical_querystring += u'='.join([key, val])
+
+        return canonical_querystring
 
     def verify(self, r):
 
@@ -120,58 +166,9 @@ class reqSignWeb():
         # get the requestId from the header
         received_requestId = r.headers.get('X-Request-Id')
 
-        # test the requestIds are equal to prevent replay attacks
+        # check that the request ids are equal to prevent replay attacks
         if received_requestId != self.requestId:
             print('unexpected requestId!')
             return False
 
         return True
-
-
-    def get_canonical_path(self, r):
-        """
-        Create canonical URI--the part of the URI from domain to query
-        string (use '/' if no path)
-        """
-
-        url = r.path
-        parsedurl = urlparse(url)
-
-        # safe chars adapted from boto's use of urllib.parse.quote
-        # https://github.com/boto/boto/blob/d9e5cfe900e1a58717e393c76a6e3580305f217a/boto/auth.py#L393
-        return quote(parsedurl.path if parsedurl.path else '/', safe='/-_.~')
-
-    def get_canonical_querystring(self, r):
-        """
-        Create the canonical query string. According to AWS, by the
-        end of this function our query string values must
-        be URL-encoded (space=%20) and the parameters must be sorted
-        by name.
-
-        This method assumes that the query params in `r` are *already*
-        url encoded.  If they are not url encoded by the time they make
-        it to this function, AWS may complain that the signature for your
-        request is incorrect.
-        """
-        canonical_querystring = ''
-
-        url = r.query_string.decode('utf-8')
-        parsedurl = urlparse(url)
-        querystring_sorted = '&'.join(sorted(parsedurl.query.split('&')))
-
-        for query_param in querystring_sorted.split('&'):
-            key_val_split = query_param.split('=', 1)
-
-            key = key_val_split[0]
-            if len(key_val_split) > 1:
-                val = key_val_split[1]
-            else:
-                val = ''
-
-            if key:
-                if canonical_querystring:
-                    canonical_querystring += "&"
-                canonical_querystring += u'='.join([key, val])
-
-        return canonical_querystring
-
