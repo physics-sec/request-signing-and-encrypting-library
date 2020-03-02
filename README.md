@@ -138,29 +138,29 @@ First, import all the important scripts
 
 When you want to send a request, do as follows:
 ```javascript
-        // create the resquest
-        var request = {
-            method: 'POST',
-            url: '/some/path',
-            params: {
-                'a': 'val1',
-                'c': 'val2',
-                'b': 'val3'
-            },
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Test': 'headerTest123'
-            },
-            data: '{"foo": "bar"}'
-        };
-        // sign the request
-        var request = await signer.sign(request);
-        // make the request
-        fetch(request.url, {
-          method: request.method,
-          headers: request.headers,
-          body: request.data,
-        })
+// create the resquest
+var request = {
+    method: 'POST',
+    url: '/some/path',
+    params: {
+        'a': 'val1',
+        'c': 'val2',
+        'b': 'val3'
+    },
+    headers: {
+        'Content-Type': 'application/json',
+        'X-Test': 'headerTest123'
+    },
+    data: '{"foo": "bar"}'
+};
+// sign the request
+var request = await signer.sign(request);
+// make the request
+fetch(request.url, {
+    method: request.method,
+    headers: request.headers,
+    body: request.data,
+})
 ```
 
 If you make the request inside a function, you will have to add the *async* keyword before the function declaration.  
@@ -170,6 +170,44 @@ async function func () {
     // code
 }
 ```
+
+
+### Backend
+The only backend supported right now is Python 3.  
+All you need to do is implement the handshake method when you receive a POST request to /ecdh.  
+
+Import the request validator:
+```python
+import reqSignWeb
+```
+
+When receiving a normal request, validate it as follows:
+```python
+# create the verifier with the shared_key and requestId of the current session.
+verifier = reqSignWeb.reqSignWeb(shared_key, requestId)
+# verify that the request is valid
+if verifier.verify(request) is False:
+        # request is invalid, return an error
+        return "Invalid request."
+# request is valid, proceed as normal
+```
+
+When the request has a payload, decrypt it as follows:
+```python
+payload = verifier.getPayload(request)
+```
+
+Then creating the response, generate a new requestId, update the verifier and send the new requestId to the client.
+```python
+# generate a new request id
+requestId = str(uuid.uuid1())
+# update the verifier (or just save the new requestId into a database)
+verifier.update(requestId)
+# Send the new request id back to the client
+return f'{{"foo": "bar", "requestId": "{requestId}"}}'
+```
+In this example, there is only one verifier object, in a real implementation, the current requestId and signKey of each active session should be stored in a database.  
+When a request is received, the requestId and signKey of the session should be retrieved and the verifier object should be instantiated with these values.  
 
 ## Credit
 
