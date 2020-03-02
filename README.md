@@ -124,6 +124,53 @@ After a DH keypair is used to get a shared secret, it should be discarded and fo
 If you are planning to use a backend other than Python, take into account that there are some ECDH libraries that are not compatible with the JavaScript library, this is because some libraries represent the private/public keys in different ways.
 The library you choose should encode their keys acoding to the [X25519 RFC](https://tools.ietf.org/html/rfc7748).
 
+
+## How to implement
+
+### Fronend
+First, import all the important scripts
+```html
+<script src="static/js/crypto.js"></script>
+<script src="static/js/web-request-signing.js"></script>
+<script src="static/js/axlsign.js"></script>
+<script src="static/js/ecdh.js"></script>
+```
+
+When you want to send a request, do as follows:
+```javascript
+        // create the resquest
+        var request = {
+            method: 'POST',
+            url: '/some/path',
+            params: {
+                'a': 'val1',
+                'c': 'val2',
+                'b': 'val3'
+            },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Test': 'headerTest123'
+            },
+            data: '{"foo": "bar"}'
+        };
+        // sign the request
+        var request = await signer.sign(request);
+        // make the request
+        fetch(request.url, {
+          method: request.method,
+          headers: request.headers,
+          body: request.data,
+        })
+```
+
+If you make the request inside a function, you will have to add the *async* keyword before the function declaration.  
+Like so:
+```javascript
+async function func () {
+    // code
+}
+```
+
 ## Credit
 
 Several projects where used to obtain some of the core logic (some have been modified):
