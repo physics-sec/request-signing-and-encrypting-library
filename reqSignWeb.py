@@ -29,19 +29,27 @@ class reqSignWeb():
         self.signKey = hashlib.sha256(self.signKey.encode('utf-8')).hexdigest()
 
     def getPayload(self, r):
+        # check the header to see if the payload is encrypted
         if r.headers.get('X-Payload-Encrypted') == '0':
+            # if not, just return the payload
             return r.data
 
+        # get the ciphertext bytes
         ciphertext = bytes.fromhex(r.data.decode('utf-8'))
 
+        # get the key bytes from the signKey
         key = bytes.fromhex(self.signKey)
 
+        # create the AES-GCM object
         aesgcm = AESGCM(key)
 
+        # get the IV bytes from the header
         iv = bytes.fromhex(r.headers.get('X-IV'))
 
+        # decrypt the ciphertext with the AES-GCM object and the IV
         plaintext = aesgcm.decrypt(iv, ciphertext,  None)
 
+        # return the platintext
         return plaintext.decode('utf-8')
 
 
@@ -71,7 +79,6 @@ class reqSignWeb():
         if body == '':
             body = None
         body = body if body else bytes()
-        body = body.encode('utf-8')
 
         payload_hash = hashlib.sha256(body).hexdigest()
 
@@ -101,16 +108,19 @@ class reqSignWeb():
             print('invalid signature length')
             return False
 
+        # check the validity of the signature in a constant-time manner to prevent timing attacks
         valid = True
         for i in range(64):
             if signature[i] != received_signature[i]:
                 valid = False
         if valid is False:
-            print(f'signatures do not match!\nExpected: {signature}\nGot: {received_signature}')
+            print(f'signatures do not match!')
             return False
 
+        # get the requestId from the header
         received_requestId = r.headers.get('X-Request-Id')
 
+        # test the requestIds are equal to prevent replay attacks
         if received_requestId != self.requestId:
             print('unexpected requestId!')
             return False

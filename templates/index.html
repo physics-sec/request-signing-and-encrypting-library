@@ -26,7 +26,8 @@
     form.onsubmit = async function (event) {
         event.preventDefault();
         var name = document.getElementById("fname");
-        // Create the request
+
+        // create the request
         var request = {
             method: 'POST',
             url: '/hello',
@@ -36,9 +37,11 @@
             },
             data: '{"name": "' + name.value + '"}'
         };
-        // Sign the request
+
+        // sign the request
         var request = await signer.sign(request);
 
+        // make the request
         fetch(request.url, {
           method: request.method,
           headers: request.headers,
@@ -46,6 +49,7 @@
         })
         .then((response) => response.json())
         .then(async (data) => {
+
             // update the signer the new request id
             await window.signer.update( data['requestId'] );
             if (window.verbose_log) {
