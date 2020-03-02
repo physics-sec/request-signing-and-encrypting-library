@@ -99,23 +99,28 @@ This is **NOT** a replacement for HTTPS.
 This type of cryptography can't and won't protect you from man in the middle attacks.  
 This is because there is no authentication provided, meaning that you don't know for sure you are talking to the server and not an attacker. 
 
+This kind of protections are **NOT** a replacement for server-side validation.  
+Every input received from the user **MUST** be checked by the server before further processing.
+
 
 ## What is it for
 This implementation will help you prevent CSRF attacks (for the request that are signed).  
 
-It will also make exploiting XSS vulnerabilities a little harder (but not impossible).  
+It will also make exploiting XSS vulnerabilities more challenging (but not impossible).  
 
-The main benefit, in my opinion, is that it makes it harder to tamper with the requests and find vulnerabilities in the backend server.
-Especially while using automated tools such as SQLMap.  
+The main benefit, in my opinion, is that it makes it much harder for an attacker to tamper with the requests and find vulnerabilities in the backend server.  
+Especially while using automated tools such as SQLMap.
 
-An experienced attacker will certainly be able to bypass this control.  
+An experienced attacker will certainly be able to bypass this type of protections.  
 
-This is mostly a learning experience, but this type of protections *should* be easy to implement, but now a days there are no great libraries that implement these type of cryptography.
+This is mostly a learning experience, but this type of protections *should* be easy to implement, but now a days there are no great libraries that implement these type of cryptography.  
+This is a small contribution into making this protections easier to implement.
 
 
 ## Considerations
-A real implementation of this library, should take into account that each session will have two values associated with the cookie(s), the shared key, and the next request id.  
+A real implementation of this library, should take into account that each session will have two values associated with the cookie(s): the shared key and the next request id.  
 
+This 
 The next request id should change in every request (obviously), and the shared key should ideally change over time.  
 This is currently done by passing the key through SHA256 every time is used and by performing additional Diffie Hellman key exchanges at random intervals.  
 
@@ -203,7 +208,7 @@ Then creating the response, generate a new requestId, update the verifier and se
 requestId = str(uuid.uuid1())
 # update the verifier (or just save the new requestId into a database)
 verifier.update(requestId)
-# Send the new request id back to the client
+# send the new request id back to the client
 return f'{{"foo": "bar", "requestId": "{requestId}"}}'
 ```
 In this example, there is only one verifier object, in a real implementation, the current requestId and signKey of each active session should be stored in a database.  
@@ -226,5 +231,4 @@ Several projects where used to obtain some of the core logic (some have been mod
 ## Ideas for the future
 - Encrypt (and sign?) responses from the server.
 - Add backend implemented in PHP, Node and/or Java.
-- Sign responses from the backend server.
-
+- Replace the JavaSCript ECDH logic with a well supported library.
