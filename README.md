@@ -83,11 +83,11 @@ Feel free to clone the repository and play with the requests in Burp.
 
 Simply clone the repository:
 ```
-git clone https://github.com/physics-sp/request-signing-implementation.git
+git clone https://github.com/physics-sp/request-signing-and-encrypting-library.git
 ```
 Run the web server:
 ```
-cd request-signing-implementation
+cd request-signing-and-encrypting-library
 python3 backend.py
 ```
 And visit the webpage: `http://127.0.0.1:5000/`
