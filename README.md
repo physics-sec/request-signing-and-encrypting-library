@@ -231,5 +231,4 @@ Several projects where used to obtain some of the core logic (some have been mod
 ## Ideas for the future
 - Encrypt (and sign?) responses from the server.
 - Add backend implemented in PHP, Node and/or Java.
-- Sign responses from the backend server.
-
+- Replace the JavaSCript ECDH logic with a well supported library.
