@@ -26,7 +26,7 @@
     form.onsubmit = async function (event) {
         event.preventDefault();
         var name = document.getElementById("fname");
-
+        // Create the request
         var request = {
             method: 'POST',
             url: '/hello',
@@ -38,7 +38,6 @@
         };
         // Sign the request
         var request = await signer.sign(request);
-
 
         fetch(request.url, {
           method: request.method,
