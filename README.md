@@ -178,7 +178,7 @@ async function func () {
 
 ### Backend
 The only backend supported right now is Python 3.  
-All you need to do is implement the handshake method when you receive a POST request to /ecdh.  
+All you need to do is implement the *handshake* method when you receive a POST request to /ecdh as it is in the *backend.py* file.   
 
 Import the request validator:
 ```python
@@ -223,7 +223,6 @@ Several projects where used to obtain some of the core logic (some have been mod
 
 ### ECDH with curve25519
 - https://github.com/wavesplatform/curve25519-js (JavaScript)
-- https://cryptography.io/en/latest/hazmat/primitives/asymmetric/x25519/ (Python)
 
 
 
