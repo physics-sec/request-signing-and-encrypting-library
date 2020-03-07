@@ -20,7 +20,7 @@ async function ecdh_handshake(){
 
     var request = {
         method: 'POST',
-        url: '/ecdh',
+        url: '/backend.php/ecdh',
         headers: {
             'Content-Type': 'application/json'
         },
