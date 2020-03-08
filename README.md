@@ -219,9 +219,11 @@ Several projects where used to obtain some of the core logic (some have been mod
 ### AWS v4
 - https://github.com/danieljoos/aws-sign-web  (JavaScript)
 - https://github.com/DavidMuller/aws-requests-auth (Python)
+- https://github.com/chrismeller/awstools (PHP)
 
 ### ECDH with curve25519
 - https://github.com/wavesplatform/curve25519-js (JavaScript)
+- https://github.com/mgp25/curve25519-php (PHP)
 
 
 
@@ -229,4 +231,4 @@ Several projects where used to obtain some of the core logic (some have been mod
 - Replace the JavaSCript ECDH logic with a well supported library.
 - Encrypt (and sign?) responses from the server.
 - Use different keys for signing and encrypting.
-- Add backend implemented in PHP, Node and/or Java.
+- Add backend implemented in Node and/or Java.
