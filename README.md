@@ -93,41 +93,6 @@ python3 backend.py
 And visit the webpage: `http://127.0.0.1:5000/`
 
 
-## What is it NOT for
-This is **NOT** a replacement for HTTPS.
-This type of cryptography can't and won't protect you from man in the middle attacks.  
-This is because there is no authentication provided, meaning that you don't know for sure you are talking to the server and not an attacker. 
-
-This kind of protections are **NOT** a replacement for server-side validation.  
-Every input received from the user **MUST** be checked by the server before further processing.
-
-
-## What is it for
-This implementation will help you prevent CSRF attacks (for the request that are signed).  
-
-It will also make exploiting XSS vulnerabilities more challenging (but not impossible).  
-
-The main benefit, in my opinion, is that it makes it much harder for an attacker to tamper with the requests and find vulnerabilities in the backend server.  
-Especially while using automated tools such as SQLMap.
-
-An experienced attacker will certainly be able to bypass this type of protections.  
-
-This is mostly a learning experience, but this type of protections *should* be easy to implement, but now a days there are no great libraries that implement these type of cryptography.  
-This is a small contribution into making this protections easier to implement.
-
-
-## Considerations
-A real implementation of this library, should take into account that each session will have two values associated with the cookie(s): the shared key and the next request id.  
-
-The next request id should change in every request (obviously), and the shared key should ideally change over time.  
-This is currently done by passing the key through SHA256 every time is used and by performing additional Diffie Hellman key exchanges at random intervals.  
-
-After a DH keypair is used to get a shared secret, it should be discarded and forgotten (to provide forward secrecy).
-
-If you are planning to use a backend other than Python, take into account that there are some ECDH libraries that are not compatible with the JavaScript library, this is because some libraries represent the private/public keys in different ways.
-The library you choose should encode their keys acoding to the [X25519 RFC](https://tools.ietf.org/html/rfc7748).
-
-
 ## How to implement
 
 ### Fronend
@@ -211,6 +176,41 @@ return f'{{"foo": "bar", "requestId": "{requestId}"}}'
 ```
 In this example, there is only one verifier object, in a real implementation, the current requestId and signKey of each active session should be stored in a database.  
 When a request is received, the requestId and signKey of the session should be retrieved and the verifier object should be instantiated with these values.  
+
+## What is it NOT for
+This is **NOT** a replacement for HTTPS.
+This type of cryptography can't and won't protect you from man in the middle attacks.  
+This is because there is no authentication provided, meaning that you don't know for sure you are talking to the server and not an attacker. 
+
+This kind of protections are **NOT** a replacement for server-side validation.  
+Every input received from the user **MUST** be checked by the server before further processing.
+
+
+## What is it for
+This implementation will help you prevent CSRF attacks (for the request that are signed).  
+
+It will also make exploiting XSS vulnerabilities more challenging (but not impossible).  
+
+The main benefit, in my opinion, is that it makes it much harder for an attacker to tamper with the requests and find vulnerabilities in the backend server.  
+Especially while using automated tools such as SQLMap.
+
+An experienced attacker will certainly be able to bypass this type of protections.  
+
+This is mostly a learning experience, but this type of protections *should* be easy to implement, but now a days there are no great libraries that implement these type of cryptography.  
+This is a small contribution into making this protections easier to implement.
+
+
+## Considerations
+A real implementation of this library, should take into account that each session will have two values associated with the cookie(s): the shared key and the next request id.  
+
+The next request id should change in every request (obviously), and the shared key should ideally change over time.  
+This is currently done by passing the key through SHA256 every time is used and by performing additional Diffie Hellman key exchanges at random intervals.  
+
+After a DH keypair is used to get a shared secret, it should be discarded and forgotten (to provide forward secrecy).
+
+If you are planning to use a backend other than Python, take into account that there are some ECDH libraries that are not compatible with the JavaScript library, this is because some libraries represent the private/public keys in different ways.
+The library you choose should encode their keys acoding to the [X25519 RFC](https://tools.ietf.org/html/rfc7748).
+
 
 ## Credit
 
