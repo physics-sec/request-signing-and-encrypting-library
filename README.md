@@ -228,7 +228,7 @@ Several projects where used to obtain some of the core logic (some have been mod
 
 
 ## Ideas for the future
-- Replace the JavaSCript ECDH logic with a well supported library.
 - Encrypt (and sign?) responses from the server.
 - Use different keys for signing and encrypting.
+- Check for AES GCM decryption tag mismatch
 - Add backend implemented in Node and/or Java.
