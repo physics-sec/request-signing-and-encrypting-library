@@ -2,10 +2,12 @@
 <?php
 
 	include 'UUID.php';
+	include 'v4.php';
 
 	// Comment these lines to hide errors
-	error_reporting(E_ALL);
-	ini_set('display_errors', 1);
+	//error_reporting(E_ALL);
+	//ini_set('display_errors', 1);
+
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/backend.php/ecdh') {
 		$data = json_decode(file_get_contents('php://input'), true);
@@ -44,7 +46,26 @@
 	}
 
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/backend.php/hello') {
-		echo "error";
-		return;
+		$myfile = fopen("creds.txt", "r") or die("Unable to open file!");
+		$creds  = fread($myfile, filesize("creds.txt"));
+		fclose($myfile);
+		$creds = json_decode($creds, true);
+
+		$shared_key = $creds["shared"];
+		$requestId = $creds["requestId"];
+
+		$valid = AWS_Signature_v4::verify($shared_key, $requestId);
+
+		if (!$valid) {
+			echo "invalid!";
+			return;
+		}
+
+		$shared_key = hash("sha256", $shared_key);
+		$requestId = UUID::v4();
+		$fp = fopen('creds.txt', 'w');
+		fwrite($fp, '{"shared" : "'. $shared_key .'", "requestId": "'. $requestId .'"}');
+		fclose($fp);
+
 	}
 ?>
