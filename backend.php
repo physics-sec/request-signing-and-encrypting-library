@@ -61,11 +61,17 @@
 			return;
 		}
 
+		$msg = AWS_Signature_v4::getPayload($shared_key);
+		$msg = json_decode($msg, true);
+		$reflect = $msg['name'];
+
 		$shared_key = hash("sha256", $shared_key);
 		$requestId = UUID::v4();
 		$fp = fopen('creds.txt', 'w');
 		fwrite($fp, '{"shared" : "'. $shared_key .'", "requestId": "'. $requestId .'"}');
 		fclose($fp);
 
+		echo '{"msg": "hello '. $reflect .'!!", "requestId": "'. $requestId .'"}';
+		return;
 	}
 ?>

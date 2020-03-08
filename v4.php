@@ -102,5 +102,26 @@
 			return true;
 
 		}
+
+		public function getPayload ( $sharedKey ) {
+			$textToDecrypt = file_get_contents('php://input');
+			$encrypted = hex2bin($textToDecrypt);
+
+			$key = hex2bin($sharedKey);
+
+			$headers = apache_request_headers();
+			$iv = $headers['X-IV'];
+			$iv = hex2bin($iv);
+
+			// the WebCryptoAPI adds the tag (of 128 bits by default) at the end of the ciphertext
+			$tag_length = 128;
+			$tag = substr($encrypted, -($tag_length/8));
+
+			$ciphertext = substr($encrypted,0, strlen($encrypted) - ($tag_length/8));
+
+			$decrypted = openssl_decrypt($ciphertext, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+
+			return $decrypted;
+		}
 	}
 ?>
