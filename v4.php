@@ -28,8 +28,27 @@
 			$canonical_request[] = $uri;
 
 			// 3) CanonicalQueryString
-			// TODO: format the query string in the correct way
-			$canonical_request[] = $_SERVER['QUERY_STRING'];
+			$query_string = $_SERVER['QUERY_STRING'];
+
+			$query_string_sorted = array();
+			foreach (explode('&', $query_string) as $value) {
+				$kv = explode('=', $value);
+				$k  = $kv[0];
+				$v  = $kv[1];
+				// url encode the keys and values
+				$query_string_sorted[rawurlencode($k)] = rawurlencode($v);
+			}
+			// sort the keys
+			uksort( $query_string_sorted, 'strcmp' );
+
+			$canonical_query_string = '';
+
+			foreach ($query_string_sorted as $key => $value) {
+				$canonical_query_string .= '&' . $key . '=' . $value;
+			}
+			$canonical_query_string = substr($canonical_query_string, 1); 
+
+			$canonical_request[] = $canonical_query_string;
 
 			// get the signed headers and the signature
 			$headers = apache_request_headers();
@@ -42,7 +61,7 @@
 
 			// 4) CanonicalHeaders
 			$can_headers = array();
-			foreach ( apache_request_headers() as $k => $v ) {
+			foreach ( $headers as $k => $v ) {
 				if (in_array(strtolower( $k ), $signed_headers)) {
 					$can_headers[ strtolower( $k ) ] = trim( $v );
 				}
