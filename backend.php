@@ -8,11 +8,38 @@
 	//error_reporting(E_ALL);
 	//ini_set('display_errors', 1);
 
-
+	// ECDH handshake
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/backend.php/ecdh') {
 
+		// get headers
+		$headers = apache_request_headers();
+		// if Authorization is present handshake is signed
+		// CAUTION: in a real implementation, this should be checked by the user's session
+		if (array_key_exists("Authorization", $headers)) {
+			// read the shared secret and the next request id from the creds file
+			$myfile = fopen("creds.txt", "r") or die("Unable to open file!");
+			$creds  = fread($myfile, filesize("creds.txt"));
+			fclose($myfile);
+			$creds = json_decode($creds, true);
+
+			$shared_key = $creds["shared"];
+			$requestId = $creds["requestId"];
+
+			// verify that the request is valid
+			$valid = AWS_Signature_v4::verify($shared_key, $requestId);
+			if (!$valid) {
+				echo "invalid!";
+				return;
+			}
+		}
+		else {
+			// if this is the first handshake, there is no shared key
+			$shared_key = '';
+		}
+		// get the data of the POST
+		$msg = AWS_Signature_v4::getPayload($shared_key);
 		// get the POST data
-		$data = json_decode(file_get_contents('php://input'), true);
+		$data = json_decode($msg, true);
 
 		// obtain client's public key
 		$client_pub_key = $data["pubkey"];

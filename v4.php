@@ -46,7 +46,11 @@
 			foreach ($query_string_sorted as $key => $value) {
 				$canonical_query_string .= '&' . $key . '=' . $value;
 			}
-			$canonical_query_string = substr($canonical_query_string, 1); 
+			$canonical_query_string = substr($canonical_query_string, 1);
+
+			if ($canonical_query_string === '=') {
+				$canonical_query_string = '';
+			}
 
 			$canonical_request[] = $canonical_query_string;
 
@@ -128,7 +132,7 @@
 		public function getPayload ( $sharedKey ) {
 			// check the header to see if the payload is encrypted
 			$headers = apache_request_headers();
-			if ($headers['X-Payload-Encrypted'] === '0') {
+			if ( !array_key_exists("X-Payload-Encrypted",$headers) or $headers['X-Payload-Encrypted'] === '0' ) {
 				// if not, just return the payload
 				return file_get_contents('php://input');
 			}
