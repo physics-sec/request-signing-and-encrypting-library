@@ -75,7 +75,7 @@ Cache-Control: no-cache
 
 ## Webpage example
 
-The web page is written in HTML and JavaScript, the backend is written in Python3.
+The web page is written in HTML and JavaScript, the backend is written in PHP.
 
 Feel free to clone the repository and play with the requests in Burp.
 
@@ -85,47 +85,16 @@ Simply clone the repository:
 ```
 git clone https://github.com/physics-sp/request-signing-and-encrypting-library.git
 ```
-Run the web server:
+Switch to the 'php-backend' branch 
 ```
 cd request-signing-and-encrypting-library
-python3 backend.py
+git checkout php-backend
 ```
-And visit the webpage: `http://127.0.0.1:5000/`
-
-
-## What is it NOT for
-This is **NOT** a replacement for HTTPS.
-This type of cryptography can't and won't protect you from man in the middle attacks.  
-This is because there is no authentication provided, meaning that you don't know for sure you are talking to the server and not an attacker. 
-
-This kind of protections are **NOT** a replacement for server-side validation.  
-Every input received from the user **MUST** be checked by the server before further processing.
-
-
-## What is it for
-This implementation will help you prevent CSRF attacks (for the request that are signed).  
-
-It will also make exploiting XSS vulnerabilities more challenging (but not impossible).  
-
-The main benefit, in my opinion, is that it makes it much harder for an attacker to tamper with the requests and find vulnerabilities in the backend server.  
-Especially while using automated tools such as SQLMap.
-
-An experienced attacker will certainly be able to bypass this type of protections.  
-
-This is mostly a learning experience, but this type of protections *should* be easy to implement, but now a days there are no great libraries that implement these type of cryptography.  
-This is a small contribution into making this protections easier to implement.
-
-
-## Considerations
-A real implementation of this library, should take into account that each session will have two values associated with the cookie(s): the shared key and the next request id.  
-
-The next request id should change in every request (obviously), and the shared key should ideally change over time.  
-This is currently done by passing the key through SHA256 every time is used and by performing additional Diffie Hellman key exchanges at random intervals.  
-
-After a DH keypair is used to get a shared secret, it should be discarded and forgotten (to provide forward secrecy).
-
-If you are planning to use a backend other than Python, take into account that there are some ECDH libraries that are not compatible with the JavaScript library, this is because some libraries represent the private/public keys in different ways.
-The library you choose should encode their keys acoding to the [X25519 RFC](https://tools.ietf.org/html/rfc7748).
+Run the web server:
+```
+php -S 127.0.0.1:5000
+```
+And visit the webpage: `http://127.0.0.1:5000/backend.php`
 
 
 ## How to implement
@@ -176,41 +145,83 @@ async function func () {
 
 
 ### Backend
-The only backend supported right now is Python 3.  
-All you need to do is implement the *handshake* method when you receive a POST request to /ecdh as it is in the *backend.py* file.   
+In this branch, the backend is written in PHP.  
+All you need to do is implement the *handshake* method when you receive a POST request to /backend.php/ecdh as it is in the *backend.php* file.   
 
 Import the request validator:
-```python
-import reqSignWeb
+```php
+include 'v4.php';
 ```
 
 When receiving a normal request, validate it as follows:
-```python
-# create the verifier with the shared_key and requestId of the current session.
-verifier = reqSignWeb.reqSignWeb(shared_key, requestId)
-# verify that the request is valid
-if verifier.verify(request) is False:
-        # request is invalid, return an error
-        return "Invalid request."
-# request is valid, proceed as normal
+```php
+// obtain the shared secret and the expected request id from the user's session
+$shared_key = $creds["shared"];
+$requestId = $creds["requestId"];
+
+// verify that the request is valid
+$valid = AWS_Signature_v4::verify($shared_key, $requestId);
+
+if (!$valid) {
+	// request is invalid, return an error
+	echo "invalid!";
+	return;
+}
+// request is valid, proceed as normal
 ```
 
 When the request has a payload, decrypt it as follows:
-```python
-payload = verifier.getPayload(request)
+```php
+$msg = AWS_Signature_v4::getPayload($shared_key);
 ```
 
 Then creating the response, generate a new requestId, update the verifier and send the new requestId to the client.
-```python
-# generate a new request id
-requestId = str(uuid.uuid1())
-# update the verifier (or just save the new requestId into a database)
-verifier.update(requestId)
-# send the new request id back to the client
-return f'{{"foo": "bar", "requestId": "{requestId}"}}'
+```php
+// generate a new request id
+$requestId = UUID::v4();
+// update the shared secret
+$shared_key = hash("sha256", $shared_key);
+// save the new shared secret and the next request id
+// send the new request id back to the client
+echo '{"foo": "bar", "requestId": "'. $requestId .'"}';
 ```
 In this example, there is only one verifier object, in a real implementation, the current requestId and signKey of each active session should be stored in a database.  
 When a request is received, the requestId and signKey of the session should be retrieved and the verifier object should be instantiated with these values.  
+
+## What is it NOT for
+This is **NOT** a replacement for HTTPS.
+This type of cryptography can't and won't protect you from man in the middle attacks.  
+This is because there is no authentication provided, meaning that you don't know for sure you are talking to the server and not an attacker. 
+
+This kind of protections are **NOT** a replacement for server-side validation.  
+Every input received from the user **MUST** be checked by the server before further processing.
+
+
+## What is it for
+This implementation will help you prevent CSRF attacks (for the request that are signed).  
+
+It will also make exploiting XSS vulnerabilities more challenging (but not impossible).  
+
+The main benefit, in my opinion, is that it makes it much harder for an attacker to tamper with the requests and find vulnerabilities in the backend server.  
+Especially while using automated tools such as SQLMap.
+
+An experienced attacker will certainly be able to bypass this type of protections.  
+
+This is mostly a learning experience, but this type of protections *should* be easy to implement, but now a days there are no great libraries that implement these type of cryptography.  
+This is a small contribution into making this protections easier to implement.
+
+
+## Considerations
+A real implementation of this library, should take into account that each session will have two values associated with the cookie(s): the shared key and the next request id.  
+
+The next request id should change in every request (obviously), and the shared key should ideally change over time.  
+This is currently done by passing the key through SHA256 every time is used and by performing additional Diffie Hellman key exchanges at random intervals.  
+
+After a DH keypair is used to get a shared secret, it should be discarded and forgotten (to provide forward secrecy).
+
+If you are planning to use a backend other than Python, take into account that there are some ECDH libraries that are not compatible with the JavaScript library, this is because some libraries represent the private/public keys in different ways.
+The library you choose should encode their keys acoding to the [X25519 RFC](https://tools.ietf.org/html/rfc7748).
+
 
 ## Credit
 
@@ -219,14 +230,16 @@ Several projects where used to obtain some of the core logic (some have been mod
 ### AWS v4
 - https://github.com/danieljoos/aws-sign-web  (JavaScript)
 - https://github.com/DavidMuller/aws-requests-auth (Python)
+- https://github.com/chrismeller/awstools (PHP)
 
 ### ECDH with curve25519
 - https://github.com/wavesplatform/curve25519-js (JavaScript)
+- https://github.com/mgp25/curve25519-php (PHP)
 
 
 
 ## Ideas for the future
-- Replace the JavaSCript ECDH logic with a well supported library.
 - Encrypt (and sign?) responses from the server.
 - Use different keys for signing and encrypting.
-- Add backend implemented in PHP, Node and/or Java.
+- Check for AES GCM decryption tag mismatch
+- Add backend implemented in Node and/or Java.
