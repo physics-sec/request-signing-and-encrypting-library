@@ -169,8 +169,9 @@ Then creating the response, generate a new requestId, update the verifier and se
 ```python
 # generate a new request id
 requestId = str(uuid.uuid1())
-# update the verifier (or just save the new requestId into a database)
-verifier.update(requestId)
+# update the shared key
+shared_key = hashlib.sha256(shared_key.encode('utf-8')).hexdigest()
+# save the new shared secret and the next request id
 # send the new request id back to the client
 return f'{{"foo": "bar", "requestId": "{requestId}"}}'
 ```
