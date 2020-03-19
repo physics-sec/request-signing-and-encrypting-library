@@ -75,7 +75,7 @@ Cache-Control: no-cache
 
 ## Webpage example
 
-The web page is written in HTML and JavaScript, the backend is written in Python3.
+The web page is written in HTML and JavaScript, the backend is written in Python3 (there is a branch with a backend written in PHP).
 
 Feel free to clone the repository and play with the requests in Burp.
 
@@ -141,7 +141,7 @@ async function func () {
 
 
 ### Backend
-The only backend supported right now is Python 3.  
+This backend is written in Python 3 (there is a branch with a backend written in PHP).  
 All you need to do is implement the *handshake* method when you receive a POST request to /ecdh as it is in the *backend.py* file.   
 
 Import the request validator:
