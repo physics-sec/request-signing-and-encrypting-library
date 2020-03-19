@@ -22,11 +22,11 @@ class reqSignWeb():
         self.requestId = requestId
         self.verbose_log = verbose_log
 
-    def update(self,requestId):
+    def update(self, signKey, requestId):
         # Update the next request id
         self.requestId = requestId
-        # Pass the shared key hex string through SHA256
-        self.signKey = hashlib.sha256(self.signKey.encode('utf-8')).hexdigest()
+        # Update the signkey
+        self.signKey = signKey
 
     def getPayload(self, r):
         # check the header to see if the payload is encrypted

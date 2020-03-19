@@ -110,7 +110,10 @@ def hello():
 
 	# generate a new request id and update the verifier
 	requestId = str(uuid.uuid1())
-	verifier.update(requestId)
+	# update the shared secret
+	shared_key = verifier.signKey
+	shared_key = hashlib.sha256(shared_key.encode('utf-8')).hexdigest()
+	verifier.update(shared_key, requestId)
 
 	if verbose_log:
 		print('next request id: ' +  requestId)
