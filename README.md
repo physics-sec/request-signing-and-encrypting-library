@@ -81,17 +81,36 @@ Feel free to clone the repository and play with the requests in Burp.
 
 ### Instalation
 
-Simply clone the repository:
+Install the [curve25519](https://github.com/mgp25/curve25519-php) PHP module:
+```bash
+cd ~
+git clone https://github.com/mgp25/curve25519-php
+cd curve25519-php
+phpize
+./configure
+make
+sudo make install
+cd ..
 ```
+Find the path of your php.ini file
+```bash
+php --ini | grep php.ini
+```
+Add this line: `extension=curve25519` at the end of the file php.ini
+```bash
+sudo vim /path/to/php.ini
+```
+Clone this repository:
+```bash
 git clone https://github.com/physics-sp/request-signing-and-encrypting-library.git
 ```
 Switch to the 'php-backend' branch 
-```
+```bash
 cd request-signing-and-encrypting-library
 git checkout php-backend
 ```
 Run the web server:
-```
+```bash
 php -S 127.0.0.1:5000
 ```
 And visit the webpage: `http://127.0.0.1:5000/backend.php`
