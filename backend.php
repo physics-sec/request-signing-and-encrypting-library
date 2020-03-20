@@ -79,7 +79,10 @@
 
 	if ($_SERVER['REQUEST_METHOD'] === 'GET' && $_SERVER['REQUEST_URI'] === '/backend.php') {
 		// send the index.html page
-		echo readfile("templates/index.html");
+		$myfile = fopen("templates/index.html", "r") or die("Unable to open file!");
+		$page  = fread($myfile, filesize("templates/index.html"));
+		fclose($myfile);
+		echo $page;
 		return;
 	}
 
