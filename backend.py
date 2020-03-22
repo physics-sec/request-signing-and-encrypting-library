@@ -77,7 +77,7 @@ def handshake():
 	public_key_bytes = server_keypair.public_key().public_bytes().hex()
 
 	# generate the next request id
-	requestId = str(uuid.uuid1())
+	requestId = str(uuid.uuid4())
 
 	if verbose_log:
 		print('next request id: ' +  requestId)
@@ -109,7 +109,7 @@ def hello():
 	reflect = js['name']
 
 	# generate a new request id and update the verifier
-	requestId = str(uuid.uuid1())
+	requestId = str(uuid.uuid4())
 	# update the shared secret
 	shared_key = verifier.signKey
 	shared_key = hashlib.sha256(shared_key.encode('utf-8')).hexdigest()
