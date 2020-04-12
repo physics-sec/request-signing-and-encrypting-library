@@ -3,6 +3,7 @@
 from flask import Flask, render_template, request
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PublicKey
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
+from cryptography.hazmat.primitives import serialization
 import reqSignWeb
 import hashlib
 import uuid
@@ -56,7 +57,7 @@ def handshake():
 	server_keypair = X25519PrivateKey.generate()
 
 	if verbose_log:
-		print('server\'s public key: ' + server_keypair.public_key().public_bytes().hex())
+		print('server\'s public key: ' + server_keypair.public_key().public_bytes(encoding=serialization.Encoding.Raw,format=serialization.PublicFormat.Raw).hex())
 
 	# get the bytes from the hex string 
 	public_bytes = bytes.fromhex(recived)
@@ -74,7 +75,7 @@ def handshake():
 		print('shared secret: ' +  shared_key)
 
 	# get server's public key
-	public_key_bytes = server_keypair.public_key().public_bytes().hex()
+	public_key_bytes = server_keypair.public_key().public_bytes(encoding=serialization.Encoding.Raw,format=serialization.PublicFormat.Raw).hex()
 
 	# generate the next request id
 	requestId = str(uuid.uuid4())
@@ -122,4 +123,4 @@ def hello():
 	return f'{{"msg": "hello {reflect}!!", "requestId": "{requestId}"}}'
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0')
+	app.run(host='0.0.0.0', ssl_context='adhoc')
