@@ -113,7 +113,7 @@ Run the web server:
 ```bash
 php -S 127.0.0.1:5000
 ```
-And visit the webpage: `http://127.0.0.1:5000/backend.php`
+And visit the webpage: `http://127.0.0.1:5000/backend.php` (`http://0.0.0.0:5000/backend.php` won't work because [SubtleCrypto](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto) doesn't work over HTTP)
 
 
 ## How to implement
